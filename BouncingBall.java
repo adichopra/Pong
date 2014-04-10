@@ -41,14 +41,14 @@ public class BouncingBall extends JPanel {
 	public BouncingBall() {
 		WIDTH = (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 		HEIGHT = (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-		ball_size = 30;
+		ball_size = WIDTH / 50;
 		ball_x = WIDTH / 2 - ball_size;
 		ball_y = HEIGHT / 2;
 		int direction = (int) (Math.random() * 2) * 2 - 1;
 		dx = 4 * direction;
 		dy = 0;
 		paddle_width = ball_size;
-		paddle_height = HEIGHT / 5;
+		paddle_height = HEIGHT / 6;
 		paddle_speed = paddle_height / 30;
 		player1_x = 0;
 		player1_y = HEIGHT / 2 - paddle_height / 2;
@@ -58,7 +58,7 @@ public class BouncingBall extends JPanel {
 		player2_moving = 0;
 		player1_score = 0;
 		player2_score = 0;
-		increment = 1.105 + Math.random() * 0.1;
+		increment = 1.105;
 		ai1 = true;
 		ai2 = true;
 //		score1.setForeground(Color.WHITE);
@@ -79,7 +79,7 @@ public class BouncingBall extends JPanel {
 		}
 		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player1_x, player1_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player1_y, player1_y + paddle_height})) { //ball is not a point
 			ball_x = player1_x + paddle_width;
-			dx *= increment;
+			dx *= increment + Math.random() * 0.1 * increment;
 			double rebound_angle = 45 * ((ball_y - (player1_y  + paddle_height / 2)) / (paddle_height / 2));
 			double speed = Math.pow(Math.pow(dy, 2) + Math.pow(dx, 2), 0.5);
 			dx = speed * Math.cos(Math.toRadians(rebound_angle));
@@ -93,7 +93,7 @@ public class BouncingBall extends JPanel {
 	    }
 		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player2_x, player2_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player2_y, player2_y + paddle_height})) { //ball is not a point
 			ball_x = player2_x - paddle_width;
-			dx *= increment;
+			dx *= increment + Math.random() * 0.1 * increment;
 			double rebound_angle = 45 * ((ball_y - (player2_y  + paddle_height / 2)) / (paddle_height / 2));
 			double speed = Math.pow(Math.pow(dy, 2) + Math.pow(dx, 2), 0.5);
 			dx = -speed * Math.cos(Math.toRadians(rebound_angle));
@@ -122,7 +122,6 @@ public class BouncingBall extends JPanel {
 		player2_x = WIDTH - player1_x - paddle_width;
 		player2_y = HEIGHT / 2 - paddle_height / 2;
 		calculated = false;
-		increment = 1.105 + Math.random() * 0.1;
 	}
 	private void movePlayer1() {
 		if (player1_moving == -1) player1_y -= paddle_speed;
@@ -154,7 +153,7 @@ public class BouncingBall extends JPanel {
 		return topBotHitter(player1);
 	}
 	private int predictiveHitter(boolean player1) {
-		int predicted_y = (int) ((ball_size / 2 + (player1 ? -ball_x: (WIDTH - ball_x - ball_size))) * (dy/dx) + ball_y);
+		int predicted_y = (int) ((player1 ? -ball_x: (WIDTH - ball_x - ball_size)) * (dy/dx) + ball_y + ball_size / 2);
 		while (predicted_y < 0 || predicted_y > HEIGHT) {
 			if (predicted_y > HEIGHT) predicted_y -= 2 * HEIGHT; 
 			predicted_y *= -1;
@@ -223,7 +222,7 @@ public class BouncingBall extends JPanel {
 			else game.movePlayer2();
 			game.moveBall();
 			game.repaint();
-			Thread.sleep(0);
+			Thread.sleep(5);
 		}
 	}
 }
