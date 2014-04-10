@@ -25,8 +25,8 @@ public class BouncingBall extends JPanel {
 	double player2_y;
 	static int player1_moving;
 	static int player2_moving;
-	int player_score;
-	int opponent_score;
+	int player1_score;
+	int player2_score;
 	double increment;
 	boolean calculated;
 	
@@ -48,8 +48,8 @@ public class BouncingBall extends JPanel {
 		player2_y = HEIGHT / 2 - paddle_height / 2;
 		player1_moving = 0;
 		player2_moving = 0;
-		player_score = 0;
-		opponent_score = 0;
+		player1_score = 0;
+		player2_score = 0;
 		increment = 1.105;
 	}
 	
@@ -60,9 +60,9 @@ public class BouncingBall extends JPanel {
 		ball_y += dy;
 		if (ball_x < 0) {
 			reset();
-			opponent_score++;
-			System.out.println("Player 1 Score: " + player_score);
-			System.out.println("Player 2 Score: " + opponent_score);
+			player2_score++;
+			System.out.println("Player 1 Score: " + player1_score);
+			System.out.println("Player 2 Score: " + player2_score);
 		}
 		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player1_x, player1_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player1_y, player1_y + paddle_height})) { //ball is not a point
 			ball_x = player1_x + paddle_width;
@@ -74,9 +74,9 @@ public class BouncingBall extends JPanel {
 		}
 		if (ball_x + ball_size >= WIDTH) {
 			reset();
-			player_score++;
-			System.out.println("Your score: " + player_score);
-			System.out.println("AI score: " + opponent_score);
+			player1_score++;
+			System.out.println("Player 1 score: " + player1_score);
+			System.out.println("Player 2 score: " + player2_score);
 	    }
 		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player2_x, player2_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player2_y, player2_y + paddle_height})) { //ball is not a point
 			ball_x = player2_x - paddle_width;
