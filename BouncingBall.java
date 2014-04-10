@@ -1,10 +1,14 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class BouncingBall extends JPanel {
@@ -29,6 +33,10 @@ public class BouncingBall extends JPanel {
 	int player2_score;
 	double increment;
 	boolean calculated;
+	boolean ai1;
+	boolean ai2;
+//	JLabel score1 = new JLabel();
+//	JLabel score2 = new JLabel();
 	
 	public BouncingBall() {
 		WIDTH = (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
@@ -51,6 +59,11 @@ public class BouncingBall extends JPanel {
 		player1_score = 0;
 		player2_score = 0;
 		increment = 1.105;
+		ai1 = false;
+		ai2 = true;
+//		score1.setForeground(Color.WHITE);
+//		score1.setPreferredSize(new Dimension(300, 100));
+//		score1.setText(""+player1_score);
 	}
 	
 	private void moveBall() {
@@ -118,13 +131,6 @@ public class BouncingBall extends JPanel {
 		if (player2_moving == -1 && player2_y > 0) player2_y -= paddle_speed;
 		else if (player2_moving == 1 && player2_y + paddle_height < HEIGHT) player2_y += paddle_speed;
 	}
-	private void moveAI1() {
-		if (Math.abs(AI1()) > paddle_speed) player1_y += AI1() < 0 ? -paddle_speed: paddle_speed; 
-		else player1_y += AI1();
-	}
-	private int AI1() {
-		return predictedHitter(true);
-	}
 	private int topHitter(boolean player1) {
 		if (player1) {
 			return (int) (ball_y + ball_size - (player1_y)) - 2;
@@ -146,18 +152,25 @@ public class BouncingBall extends JPanel {
 		if (!player1 && dx < 0) return (int) ((HEIGHT / 2) - (player2_y + paddle_height / 2));
 		return topBotHitter(player1);
 	}
-	private int predictedHitter(boolean player1) {
+	private int predictiveHitter(boolean player1) {
 		int predicted_y = (int) ((player1 ? -ball_x: (WIDTH - ball_x)) * (dy/dx) + ball_y);
 		while (predicted_y < 0 || predicted_y > HEIGHT) {
 			if (predicted_y > HEIGHT) predicted_y -= 2 * HEIGHT; 
 			predicted_y *= -1;
 		}
 		if (dy/dx == 0) predicted_y = (int) ball_y;
-		if (dx < 0 != player1)	return (int)((HEIGHT / 2) - ((player1 ? player1_y: player2_y) + paddle_height));
-		return (int) ((predicted_y) - ((player1 ? player1_y: player2_y) + paddle_height / 2));
+		if (dx < 0 != player1)	return (int)((HEIGHT / 2) - ((player1 ? player1_y: player2_y) + paddle_height / 2));
+		return (int) ((predicted_y) - ((player1 ? player1_y: player2_y) + paddle_height * 5 / 7));
+	}
+	private void moveAI1() {
+		if (Math.abs(AI1()) > paddle_speed) player1_y += AI1() < 0 ? -paddle_speed: paddle_speed; 
+		else player1_y += AI1();
+	}
+	private int AI1() {
+		return predictiveHitter(true);
 	}
 	private int AI2() {
-		return betterTopBotHitter(false);
+		return predictiveHitter(false);
 	}
 	private void moveAI2() {
 		if (Math.abs(AI2()) > paddle_speed) player2_y += AI2() < 0 ? -paddle_speed: paddle_speed; 
@@ -185,6 +198,8 @@ public class BouncingBall extends JPanel {
 		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.getContentPane().add(game.score1, BorderLayout.CENTER);//Player 1 score
+//		frame.add(game.score2);//Player 2 score
 		frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 int ID = e.getKeyCode();
@@ -201,13 +216,13 @@ public class BouncingBall extends JPanel {
             }
         });
 		while (true) {
-//			game.movePlayer1();
-//			game.movePlayer2();
-			game.moveAI1();
-			game.moveAI2();
+			if (game.ai1) game.moveAI1();
+			else game.movePlayer1();
+			if (game.ai2) game.moveAI2();
+			else game.movePlayer2();
 			game.moveBall();
 			game.repaint();
-			Thread.sleep(0);
+			Thread.sleep(5);
 		}
 	}
 }
