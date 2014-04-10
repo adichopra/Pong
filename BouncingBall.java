@@ -4,7 +4,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -16,45 +15,41 @@ public class BouncingBall extends JPanel {
 	double ball_y;
 	double dx;
 	double dy;
-	int x_size;
-	int y_size;
+	int ball_size;
 	int paddle_width;
 	int paddle_height;
 	int paddle_speed;
-	int player_x;
-	double player_y;
-	int opponent_x;
-	double opponent_y;
+	int player1_x;
+	double player1_y;
+	int player2_x;
+	double player2_y;
 	static int player1_moving;
 	static int player2_moving;
 	int player_score;
 	int opponent_score;
-	double multiplier;
 	double increment;
+	boolean calculated;
 	
 	public BouncingBall() {
 		WIDTH = (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 		HEIGHT = (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-		ball_x = WIDTH / 2;
+		ball_size = 30;
+		ball_x = WIDTH / 2 - ball_size;
 		ball_y = HEIGHT / 2;
-//		int angle = (int) (Math.random() * 121) - 60;
 		int direction = (int) (Math.random() * 2) * 2 - 1;
 		dx = 4 * direction;
-		dy = 0;//dx * Math.tan(Math.toRadians(angle));
-		x_size = 30;
-		y_size = 30;
-		paddle_width = x_size;
+		dy = 0;
+		paddle_width = ball_size;
 		paddle_height = 150;
 		paddle_speed = 5;
-		player_x = 0;
-		player_y = HEIGHT / 2 - paddle_height / 2;
-		opponent_x = WIDTH - player_x - paddle_width;
-		opponent_y = HEIGHT / 2 - paddle_height / 2;
+		player1_x = 0;
+		player1_y = HEIGHT / 2 - paddle_height / 2;
+		player2_x = WIDTH - player1_x - paddle_width;
+		player2_y = HEIGHT / 2 - paddle_height / 2;
 		player1_moving = 0;
 		player2_moving = 0;
 		player_score = 0;
 		opponent_score = 0;
-		multiplier = 0.001;
 		increment = 1.105;
 	}
 	
@@ -66,39 +61,37 @@ public class BouncingBall extends JPanel {
 		if (ball_x < 0) {
 			reset();
 			opponent_score++;
-			System.out.println("Your score: " + player_score);
-			System.out.println("AI score: " + opponent_score);
+			System.out.println("Player 1 Score: " + player_score);
+			System.out.println("Player 2 Score: " + opponent_score);
 		}
-		if (interval_overlap(new double[] {ball_x, ball_x + x_size}, new double[] {player_x, player_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + y_size)}, new double[] {player_y, player_y + paddle_height})) { //ball is not a point
-			ball_x = player_x + paddle_width;
+		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player1_x, player1_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player1_y, player1_y + paddle_height})) { //ball is not a point
+			ball_x = player1_x + paddle_width;
 			dx *= increment;
-			double rebound_angle = 45 * ((ball_y - (player_y  + paddle_height / 2)) / (paddle_height / 2));
+			double rebound_angle = 45 * ((ball_y - (player1_y  + paddle_height / 2)) / (paddle_height / 2));
 			double speed = Math.pow(Math.pow(dy, 2) + Math.pow(dx, 2), 0.5);
 			dx = speed * Math.cos(Math.toRadians(rebound_angle));
 			dy = speed * Math.sin(Math.toRadians(rebound_angle));
 		}
-		if (ball_x + x_size >= WIDTH) {
+		if (ball_x + ball_size >= WIDTH) {
 			reset();
 			player_score++;
 			System.out.println("Your score: " + player_score);
 			System.out.println("AI score: " + opponent_score);
 	    }
-		if (interval_overlap(new double[] {ball_x, ball_x + x_size}, new double[] {opponent_x, opponent_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + y_size)}, new double[] {opponent_y, opponent_y + paddle_height})) { //ball is not a point
-			ball_x = opponent_x - paddle_width;
+		if (interval_overlap(new double[] {ball_x, ball_x + ball_size}, new double[] {player2_x, player2_x + paddle_width}) && interval_overlap(new double[] {ball_y, (int) (ball_y + ball_size)}, new double[] {player2_y, player2_y + paddle_height})) { //ball is not a point
+			ball_x = player2_x - paddle_width;
 			dx *= increment;
-			double rebound_angle = 45 * ((ball_y - (opponent_y  + paddle_height / 2)) / (paddle_height / 2));
+			double rebound_angle = 45 * ((ball_y - (player2_y  + paddle_height / 2)) / (paddle_height / 2));
 			double speed = Math.pow(Math.pow(dy, 2) + Math.pow(dx, 2), 0.5);
 			dx = -speed * Math.cos(Math.toRadians(rebound_angle));
-			dy = -speed * Math.sin(Math.toRadians(rebound_angle));
+			dy = speed * Math.sin(Math.toRadians(rebound_angle));
 		}
 		if (ball_y < 0) {
 		    ball_y = 0;
-//		    dy -= increment;
 		    dy = -dy;
 		}
-		if (ball_y + y_size >= HEIGHT) {
-		    ball_y = HEIGHT - y_size;
-//		    dy += increment;
+		if (ball_y + ball_size >= HEIGHT) {
+		    ball_y = HEIGHT - ball_size;
 		    dy = -dy;
 		}
 	}
@@ -108,38 +101,68 @@ public class BouncingBall extends JPanel {
 	private void reset() { 
 		ball_x = WIDTH / 2;
 		ball_y = HEIGHT / 2;
-//		int angle = (int) (Math.random() * 121) - 60;
 		int direction = (int) (Math.random() * 2) * 2 - 1;
 		dx = 2 * direction;
-		dy = 0;//dx * Math.tan(Math.toRadians(angle));
-		player_x = 0;
-		player_y = HEIGHT / 2 - paddle_height / 2;
-		opponent_x = WIDTH - player_x - paddle_width;
-		opponent_y = HEIGHT / 2 - paddle_height / 2;
+		dy = 0;
+		player1_x = 0;
+		player1_y = HEIGHT / 2 - paddle_height / 2;
+		player2_x = WIDTH - player1_x - paddle_width;
+		player2_y = HEIGHT / 2 - paddle_height / 2;
+		calculated = false;
 	}
 	private void movePlayer1() {
-		if (player1_moving == -1 /*&& player_y > 0*/) player_y -= paddle_speed;
-		else if (player1_moving == 1 /*&& player_y + paddle_height < HEIGHT*/) player_y += paddle_speed;
+		if (player1_moving == -1) player1_y -= paddle_speed;
+		else if (player1_moving == 1) player1_y += paddle_speed;
 	}
 	private void movePlayer2() {
-		if (player2_moving == -1 && opponent_y > 0) opponent_y -= paddle_speed;
-		else if (player2_moving == 1 && opponent_y + paddle_height < HEIGHT) opponent_y += paddle_speed;
+		if (player2_moving == -1 && player2_y > 0) player2_y -= paddle_speed;
+		else if (player2_moving == 1 && player2_y + paddle_height < HEIGHT) player2_y += paddle_speed;
 	}
 	private void moveAI1() {
-		if (Math.abs(AI1()) > paddle_speed) player_y += AI1() < 0 ? -paddle_speed: paddle_speed; 
-		else player_y += AI1();
+		if (Math.abs(AI1()) > paddle_speed) player1_y += AI1() < 0 ? -paddle_speed: paddle_speed; 
+		else player1_y += AI1();
 	}
 	private int AI1() {
-		return (int) (ball_y + y_size - (player_y /*+ paddle_height / 2*/)) - 1;
+		return predictedHitter(true);
+	}
+	private int topHitter(boolean player1) {
+		if (player1) {
+			return (int) (ball_y + ball_size - (player1_y)) - 2;
+		}
+		return (int) (ball_y + ball_size - (player2_y)) - 2;
+	}
+	private int botHitter(boolean player1) {
+		if (player1) {
+			return (int) ((ball_y) - (player1_y + paddle_height)) + 2;
+		}
+		return (int) ((ball_y) - (player2_y + paddle_height)) + 2;
+	}
+	private int topBotHitter(boolean player1) {
+		if (ball_y >= HEIGHT / 2) return botHitter(player1);
+		return topHitter(player1);
+	}
+	private int betterTopBotHitter(boolean player1) {
+		if (player1 && dx > 0) return (int) ((HEIGHT / 2) - (player1_y + paddle_height / 2));
+		if (!player1 && dx < 0) return (int) ((HEIGHT / 2) - (player2_y + paddle_height / 2));
+		return topBotHitter(player1);
+	}
+	private int predictedHitter(boolean player1) {
+		int predicted_y = (int) ((player1 ? -ball_x: (WIDTH - ball_x)) * (dy/dx) + ball_y);
+		while (predicted_y < 0 || predicted_y > HEIGHT) {
+			if (predicted_y > HEIGHT) predicted_y -= 2 * HEIGHT; 
+			predicted_y *= -1;
+		}
+		if (dy/dx == 0) predicted_y = (int) ball_y;
+		if (dx < 0 != player1)	return (int)((HEIGHT / 2) - ((player1 ? player1_y: player2_y) + paddle_height));
+		return (int) ((predicted_y) - ((player1 ? player1_y: player2_y) + paddle_height / 2));
 	}
 	private int AI2() {
-		return (int) (ball_y - (opponent_y + paddle_height / 2));
+		return betterTopBotHitter(false);
 	}
 	private void moveAI2() {
-		if (Math.abs(AI2()) > paddle_speed) opponent_y += AI2() < 0 ? -paddle_speed: paddle_speed; 
-		else opponent_y += AI2();
+		if (Math.abs(AI2()) > paddle_speed) player2_y += AI2() < 0 ? -paddle_speed: paddle_speed; 
+		else player2_y += AI2();
 	}
-	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -147,9 +170,9 @@ public class BouncingBall extends JPanel {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g2d.setColor(Color.WHITE);
-		g2d.fillRect((int) ball_x, (int) ball_y, x_size, y_size);
-		g2d.fillRect(player_x, (int) player_y, paddle_width, paddle_height);
-		g2d.fillRect(opponent_x, (int) opponent_y, paddle_width, paddle_height);
+		g2d.fillRect((int) ball_x, (int) ball_y, ball_size, ball_size);
+		g2d.fillRect(player1_x, (int) player1_y, paddle_width, paddle_height);
+		g2d.fillRect(player2_x, (int) player2_y, paddle_width, paddle_height);
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -184,7 +207,7 @@ public class BouncingBall extends JPanel {
 			game.moveAI2();
 			game.moveBall();
 			game.repaint();
-			Thread.sleep(5);
+			Thread.sleep(0);
 		}
 	}
 }
