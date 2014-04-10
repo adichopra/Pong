@@ -48,8 +48,8 @@ public class BouncingBall extends JPanel {
 		dx = 4 * direction;
 		dy = 0;
 		paddle_width = ball_size;
-		paddle_height = 150;
-		paddle_speed = 5;
+		paddle_height = HEIGHT / 5;
+		paddle_speed = paddle_height / 30;
 		player1_x = 0;
 		player1_y = HEIGHT / 2 - paddle_height / 2;
 		player2_x = WIDTH - player1_x - paddle_width;
@@ -58,8 +58,8 @@ public class BouncingBall extends JPanel {
 		player2_moving = 0;
 		player1_score = 0;
 		player2_score = 0;
-		increment = 1.105;
-		ai1 = false;
+		increment = 1.105 + Math.random() * 0.1;
+		ai1 = true;
 		ai2 = true;
 //		score1.setForeground(Color.WHITE);
 //		score1.setPreferredSize(new Dimension(300, 100));
@@ -122,6 +122,7 @@ public class BouncingBall extends JPanel {
 		player2_x = WIDTH - player1_x - paddle_width;
 		player2_y = HEIGHT / 2 - paddle_height / 2;
 		calculated = false;
+		increment = 1.105 + Math.random() * 0.1;
 	}
 	private void movePlayer1() {
 		if (player1_moving == -1) player1_y -= paddle_speed;
@@ -153,7 +154,7 @@ public class BouncingBall extends JPanel {
 		return topBotHitter(player1);
 	}
 	private int predictiveHitter(boolean player1) {
-		int predicted_y = (int) ((player1 ? -ball_x: (WIDTH - ball_x)) * (dy/dx) + ball_y);
+		int predicted_y = (int) ((ball_size / 2 + (player1 ? -ball_x: (WIDTH - ball_x - ball_size))) * (dy/dx) + ball_y);
 		while (predicted_y < 0 || predicted_y > HEIGHT) {
 			if (predicted_y > HEIGHT) predicted_y -= 2 * HEIGHT; 
 			predicted_y *= -1;
@@ -222,7 +223,7 @@ public class BouncingBall extends JPanel {
 			else game.movePlayer2();
 			game.moveBall();
 			game.repaint();
-			Thread.sleep(5);
+			Thread.sleep(0);
 		}
 	}
 }
